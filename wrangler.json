@@ -1,0 +1,30 @@
+{
+  "name": "square-water-looip",
+  "main": "./dist/index.js",
+  "assets": {
+    "directory": "./dist"
+  },
+  "compatibility_date": "2024-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  "upload_source_maps": true,
+  "vars": {
+    "EXAMPLE_VALUE": "example_value"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "white-math-e985-d1",
+      "database_id": "760e5c43-f69a-4fa9-92d7-a7abdfb6bc37"
+    }
+  ],
+  "workflows": [
+    {
+      "name": "square-water-looip-customer-workflow",
+      "binding": "CUSTOMER_WORKFLOW",
+      "class_name": "CustomerWorkflow"
+    }
+  ]
+}
