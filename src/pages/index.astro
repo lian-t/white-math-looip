@@ -1,31 +1,137 @@
 ---
-import { buttonVariants } from '@/components/ui/button';
-import { Github, LayoutDashboard } from 'lucide-react';
-import '@/styles/globals.css'
+import i18next from "./i18n.js";
+await i18next.init();
+const t = i18next.t;
+import { Input } from "@/components/ui/input";
+import { buttonVariants } from "@/components/ui/button";
+import { Github, LayoutDashboard } from "lucide-react";
+import "@/styles/globals.css";
 
-const repoLink = 'https://github.com/cloudflare/templates/tree/main/square-water-looip';
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 ---
 
 <script is:inline>
   const getThemePreference = () => {
-    if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-      return localStorage.getItem('theme');
+    if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
+      return localStorage.getItem("theme");
     }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
   };
-  const isDark = getThemePreference() === 'dark';
-  document.documentElement.classList[isDark ? 'add' : 'remove']('dark');
- 
-  if (typeof localStorage !== 'undefined') {
+  const isDark = getThemePreference() === "dark";
+  document.documentElement.classList[isDark ? "add" : "remove"]("dark");
+
+  if (typeof localStorage !== "undefined") {
     const observer = new MutationObserver(() => {
-      const isDark = document.documentElement.classList.contains('dark');
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      const isDark = document.documentElement.classList.contains("dark");
+      localStorage.setItem("theme", isDark ? "dark" : "light");
     });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+  }
+
+  function isValidIPv4Manual(ip) {
+    const parts = ip.split(".");
+    if (parts.length !== 4) {
+      return false;
+    }
+    for (let part of parts) {
+      const num = parseInt(part, 10);
+      if (isNaN(num) || num < 0 || num > 255 || part !== num.toString()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function handleClick() {
+    // 通过 id 获取 div 元素
+    const divElement = document.getElementById("tableDivResp");
+    // 设置 display 属性为 'block' 来显示元素
+    divElement.style.display = "block";
+
+    // 获取表格的表头行
+    const table = document.getElementById("MyTableId");
+    const tbody = table.getElementsByTagName("tbody")[0];
+
+    tbody.innerHTML = "";
+
+    // 获取 input 元素的值
+    const inputValue = document.getElementById("submitInput").value.trim();
+    console.log("输入框的值是: ", inputValue);
+
+    if (isValidIPv4Manual(inputValue) === false) {
+      alert("请输入正确的IP地址");
+      return false;
+    }
+
+    var endpoint =
+      "http://ip-api.com/json/" +
+      inputValue +
+      "?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query";
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        var response = JSON.parse(this.responseText);
+
+        console.log(response);
+
+        if (response.status !== "success") {
+          console.log("query failed: " + response.message);
+          return;
+        }
+
+        // 假设要追加的数据是对象的键
+        for (const key in response) {
+          console.log(key);
+
+          const newRow = document.createElement("tr");
+
+          newRow.className =
+            "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted";
+
+          const keyHeaderCell = document.createElement("td");
+          keyHeaderCell.textContent = key;
+          keyHeaderCell.className =
+            "p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] [&[align=center]]:text-center [&[align=right]]:text-right";
+          newRow.appendChild(keyHeaderCell);
+
+          const valueHeaderCell = document.createElement("td");
+          valueHeaderCell.textContent = response[key];
+          valueHeaderCell.className =
+            "p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] [&[align=center]]:text-center [&[align=right]]:text-right";
+
+          newRow.appendChild(valueHeaderCell);
+          // 确保 tbody 存在再追加行
+          tbody.appendChild(newRow);
+        }
+
+        // Redirect
+        if (response.countryCode == "US") {
+          window.location.replace("https://google.com/");
+        }
+        if (response.countryCode == "CA") {
+          window.location.replace("https://google.ca/");
+        }
+      }
+    };
+    xhr.open("GET", endpoint, true);
+    xhr.send();
   }
 </script>
 
-<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -36,12 +142,36 @@ const repoLink = 'https://github.com/cloudflare/templates/tree/main/square-water
   </head>
   <body>
     <div class="flex flex-col items-center justify-center gap-4 py-20 px-8">
-      <h1 class="text-5xl font-bold">SaaS Admin Template</h1>
-      <p class="text-xl text-muted-foreground">Manage a SaaS application - customers, subscriptions - using Cloudflare Workers and D1.</p>
+      <h1 class="text-5xl font-bold">LooIP</h1>
+      <p class="text-xl text-muted-foreground">
+        Need to know where an IP is from? Our IP Query Tool has the answer. Fast, accurate, and user - friendly.
+      </p>
       <div class="flex flex gap-4 mt-4">
-        <a class={buttonVariants()} href="/admin">
-          <LayoutDashboard /> Go to admin
-        </a>
+        <Input id="submitInput" type="text" placeholder="IP Address" />
+
+        <a
+          id="submitButton"
+          class={buttonVariants()}
+          href="#"
+          onclick="handleClick()"
+        >
+          <LayoutDashboard />Query</a
+        >
+      </div>
+    </div>
+
+    <div id="tableDivResp" style="display: none;" class="w-1/2 mx-auto p-4">
+      <Table id="MyTableId">
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[100px]">Name</TableHead>
+            <TableHead>Value</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody id="TableBodyResp" className="[&_tr:last-child]:border-0">
+          <TableRow />
+        </TableBody>
+      </Table>
     </div>
   </body>
 </html>

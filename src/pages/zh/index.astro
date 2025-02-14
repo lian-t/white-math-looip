@@ -1,0 +1,90 @@
+---
+import { buttonVariants } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Github, LayoutDashboard } from 'lucide-react';
+import '@/styles/globals.css'
+
+---
+
+<script is:inline>
+
+  const getThemePreference = () => {
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+      return localStorage.getItem('theme');
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  };
+  const isDark = getThemePreference() === 'dark';
+  document.documentElement.classList[isDark ? 'add' : 'remove']('dark');
+
+  if (typeof localStorage !== 'undefined') {
+    const observer = new MutationObserver(() => {
+      const isDark = document.documentElement.classList.contains('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  }
+
+
+  var endpoint = 'http://ip-api.com/json/?fields=status,message,countryCode';
+
+
+
+  function handleClick() {
+        alert('你点击了提交按钮');
+  }
+
+
+  // var xhr = new XMLHttpRequest();
+  // xhr.onreadystatechange = function() {
+  //   if (this.readyState == 4 && this.status == 200) {
+  //     var response = JSON.parse(this.responseText);
+  //     if(response.status !== 'success') {
+  //       console.log('query failed: ' + response.message);
+  //       return
+  //     }
+  //     // Redirect
+  //     if(response.countryCode == "US") {
+  //       window.location.replace("https://google.com/");
+  //     }
+  //     if(response.countryCode == "CA") {
+  //       window.location.replace("https://google.ca/");
+  //     }
+  //   }
+  // };
+  // xhr.open('GET', endpoint, true);
+  // xhr.send();
+
+</script>
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>SaaS Admin Template</title>
+  </head>
+  <body>
+
+
+
+    <div class="flex flex-col items-center justify-center gap-4 py-20 px-8">
+      <h1 class="text-5xl font-bold">SaaS Admin Template</h1>
+      <p class="text-xl text-muted-foreground">Manage a SaaS application - customers, subscriptions - using Cloudflare Workers and D1.</p>
+      <div class="flex flex gap-4 mt-4">
+        
+
+        <Input type="text" placeholder="请输入IP地址" />
+
+        <a id="submitButton" class={buttonVariants()} href="#" onclick="handleClick()">
+          <LayoutDashboard /> 查询
+        </a>
+
+      </div>
+
+    </div>
+  </body>
+</html>
+

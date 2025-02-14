@@ -27,5 +27,12 @@ export default defineConfig({
         "react-dom/server": "react-dom/server.edge",
       },
     },
+    optimizeDeps: {
+      include: ['i18next', 'i18next-http-backend', 'i18next-browser-languagedetector']
+    }
   },
+  i18n: {
+    defaultLocale: "en",
+    locales: ["zh", "en"],
+  }
 });
