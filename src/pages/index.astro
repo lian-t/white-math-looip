@@ -77,21 +77,31 @@ import {
       return false;
     }
 
-    var endpoint =
-      "http://ip-api.com/json/" +
-      inputValue +
-      "?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query";
+    // var endpoint =
+    //   "http://ip-api.com/json/" +
+    //   inputValue +
+    //   "?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query";
+    
+    
+      var endpoint ="https://ip.nf/"+inputValue+".json"
+
+    //   $.getJSON( "https://ip.nf/me.json", function( data ) {
+    //     $("#ip").html(data.ip.ip);
+    //     $("#location").html(data.ip.city + " (" + data.ip.country + ")");
+    // });
+
+    
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
-        var response = JSON.parse(this.responseText);
+        var response = JSON.parse(this.responseText).ip;
 
         console.log(response);
 
-        if (response.status !== "success") {
-          console.log("query failed: " + response.message);
-          return;
-        }
+        // if (response.status !== "success") {
+        //   console.log("query failed: " + response.message);
+        //   return;
+        // }
 
         // 假设要追加的数据是对象的键
         for (const key in response) {
