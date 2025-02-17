@@ -56,6 +56,28 @@ import {
     return true;
   }
 
+  // 封装创建表格行的函数
+  function createTableRow(key, value) {
+    const newRow = document.createElement("tr");
+
+    newRow.className =
+      "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted";
+
+    const keyHeaderCell = document.createElement("td");
+    keyHeaderCell.textContent = key;
+    keyHeaderCell.className =
+      "p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] [&[align=center]]:text-center [&[align=right]]:text-right";
+    newRow.appendChild(keyHeaderCell);
+
+    const valueHeaderCell = document.createElement("td");
+    valueHeaderCell.textContent = value;
+    valueHeaderCell.className =
+      "p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] [&[align=center]]:text-center [&[align=right]]:text-right";
+
+    newRow.appendChild(valueHeaderCell);
+    return newRow;
+  }
+
   function handleClick() {
     // 通过 id 获取 div 元素
     const divElement = document.getElementById("tableDivResp");
@@ -81,18 +103,19 @@ import {
     //   "http://ip-api.com/json/" +
     //   inputValue +
     //   "?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query";
-    
-    
-      // var endpoint ="https://ip.nf/"+inputValue+".json"
 
-      var endpoint ="https://api.ipapi.com/api/"+inputValue+"?access_key=a8efe72898fd508fe79fd0044ca10cdf"
+    // var endpoint ="https://ip.nf/"+inputValue+".json"
+
+    var endpoint =
+      "https://api.ipapi.com/api/" +
+      inputValue +
+      "?access_key=a8efe72898fd508fe79fd0044ca10cdf";
 
     //   $.getJSON( "https://ip.nf/me.json", function( data ) {
     //     $("#ip").html(data.ip.ip);
     //     $("#location").html(data.ip.city + " (" + data.ip.country + ")");
     // });
 
-    
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
@@ -109,25 +132,37 @@ import {
         for (const key in response) {
           console.log(key);
 
-          const newRow = document.createElement("tr");
-
-          newRow.className =
-            "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted";
-
-          const keyHeaderCell = document.createElement("td");
-          keyHeaderCell.textContent = key;
-          keyHeaderCell.className =
-            "p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] [&[align=center]]:text-center [&[align=right]]:text-right";
-          newRow.appendChild(keyHeaderCell);
-
-          const valueHeaderCell = document.createElement("td");
-          valueHeaderCell.textContent = response[key];
-          valueHeaderCell.className =
-            "p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] [&[align=center]]:text-center [&[align=right]]:text-right";
-
-          newRow.appendChild(valueHeaderCell);
-          // 确保 tbody 存在再追加行
-          tbody.appendChild(newRow);
+          if (typeof response[key] === "object" && response[key] !== null) {
+            console.log(`${key} 对应的值是一个对象`);
+            for (const sonKey in response[key]) {
+              if (Array.isArray(response[key][sonKey])) {
+                // 如果是数组，遍历数组元素
+                response[key][sonKey].forEach((sonKeyItem, index) => {
+                  if (typeof sonKeyItem === "object" && sonKeyItem !== null) {
+                    for (const sonKeyItemKey in sonKeyItem) {
+                      const newRow = createTableRow(
+                        key + " " + sonKey + " " + index + " " + sonKeyItemKey,
+                        sonKeyItem[sonKeyItemKey],
+                      );
+                      // 确保 tbody 存在再追加行
+                      tbody.appendChild(newRow);
+                    }
+                  }
+                });
+              } else {
+                const newRow = createTableRow(
+                  key + " " + sonKey,
+                  response[key][sonKey],
+                );
+                // 确保 tbody 存在再追加行
+                tbody.appendChild(newRow);
+              }
+            }
+          } else {
+            const newRow = createTableRow(key, response[key]);
+            // 确保 tbody 存在再追加行
+            tbody.appendChild(newRow);
+          }
         }
 
         // Redirect
@@ -156,7 +191,8 @@ import {
     <div class="flex flex-col items-center justify-center gap-4 py-20 px-8">
       <h1 class="text-5xl font-bold">LooIP</h1>
       <p class="text-xl text-muted-foreground">
-        Need to know where an IP is from? Our IP Query Tool has the answer. Fast, accurate, and user - friendly.
+        Need to know where an IP is from? Our IP Query Tool has the answer.
+        Fast, accurate, and user - friendly.
       </p>
       <div class="flex flex gap-4 mt-4">
         <Input id="submitInput" type="text" placeholder="IP Address" />
